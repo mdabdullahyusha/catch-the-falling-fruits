@@ -40,13 +40,23 @@ function handleFruitCatch(index) {
     const fruit = fallingObjects[index];
     fallingObjects.splice(index, 1);
 
-    updateScore(POINTS_PER_FRUIT);
+    // A Golden Fruit is worth 50 in total, a normal fruit 10.
+    // The same updateScore() also handles level-ups, best score
+    // and FRUIT RAIN milestones - even when +50 crosses one.
+    const points = fruit.golden ? GOLDEN_POINTS : POINTS_PER_FRUIT;
+    updateScore(points);
 
-    // Show "+10" just above the middle of the basket
-    addFloatingScore("+" + POINTS_PER_FRUIT, basket.x + basket.width / 2, basket.y - 10);
+    // Show "+10" (or a gold "+50") just above the middle of the basket
+    const textColor = fruit.golden ? "#b7791f" : undefined;   // undefined = normal orange
+    addFloatingScore("+" + points, basket.x + basket.width / 2, basket.y - 10, textColor);
 
-    spawnCatchEffect(fruit);   // pop + sparkles
-    playSound("catch");
+    if (fruit.golden) {
+        spawnCatchEffect(fruit, true);   // bigger, golden sparkle burst
+        playSound("golden");
+    } else {
+        spawnCatchEffect(fruit);         // pop + sparkles
+        playSound("catch");
+    }
 }
 
 

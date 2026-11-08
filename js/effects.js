@@ -14,6 +14,10 @@ const WOBBLE_DURATION = 0.3;
 const SPARKLE_COUNT = 6;
 const SPARKLE_COLORS = ["#ffd93d", "#ff9f43", "#ffffff", "#ff8fab"];
 
+// A Golden Fruit gets a bigger, all-gold burst
+const GOLDEN_SPARKLE_COUNT = 12;
+const GOLDEN_SPARKLE_COLORS = ["#ffd700", "#ffb300", "#fff3a0", "#ffffff"];
+
 // People who turn off animations in their system get no wobble
 const reduceMotion = window.matchMedia &&
     window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -25,20 +29,26 @@ let wobbleTimeLeft = 0;
 
 
 // ---------- 1. Starting effects ----------
-function spawnCatchEffect(object) {
+// "golden" = true for a Golden Fruit: twice the sparkles, all gold,
+// flying a bit faster, and a deeper gold ring. Still under half a second.
+function spawnCatchEffect(object, golden = false) {
+    const count = golden ? GOLDEN_SPARKLE_COUNT : SPARKLE_COUNT;
+    const colors = golden ? GOLDEN_SPARKLE_COLORS : SPARKLE_COLORS;
+    const baseSpeed = golden ? 170 : 120;
+
     pops.push({ type: object.type, x: object.x, y: object.y, age: 0 });
-    rings.push({ x: object.x, y: object.y, color: "#ffd93d", age: 0 });
+    rings.push({ x: object.x, y: object.y, color: golden ? "#ffb300" : "#ffd93d", age: 0 });
 
     // Sparkles fly out in a circle, evenly spaced
-    for (let i = 0; i < SPARKLE_COUNT; i++) {
-        const angle = (i / SPARKLE_COUNT) * Math.PI * 2;
-        const speed = 120 + Math.random() * 60;
+    for (let i = 0; i < count; i++) {
+        const angle = (i / count) * Math.PI * 2;
+        const speed = baseSpeed + Math.random() * 60;
         sparkles.push({
             x: object.x,
             y: object.y,
             speedX: Math.cos(angle) * speed,
             speedY: Math.sin(angle) * speed,
-            color: SPARKLE_COLORS[i % SPARKLE_COLORS.length],
+            color: colors[i % colors.length],
             age: 0
         });
     }

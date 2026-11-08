@@ -11,6 +11,18 @@ let audioContext = null;      // created on the first click / tap / key press
 let isSoundOn = loadSoundSetting();
 const lastPlayedAt = {};      // when each sound last played (to avoid pile-ups)
 
+// "Jingles" are the little tunes. If two would play at the same moment
+// (e.g. a Golden Fruit that also causes a level-up), the later one
+// waits until the earlier one has finished, so they never overlap.
+// Lengths are in seconds (last note's start + its length).
+const JINGLE_LENGTHS = {
+    levelUp: 0.39,
+    bonus: 0.38,
+    golden: 0.25
+};
+const JINGLE_GAP = 0.03;      // tiny pause between two jingles
+let jingleFreeAt = 0;         // audio-clock time when the last jingle ends
+
 const soundButton = document.getElementById("sound-btn");
 
 
@@ -90,18 +102,28 @@ function playTone(startFreq, endFreq, duration, waveType, volume, delay) {
 
 
 // ---------- 4. The game's sounds ----------
+// Returns how many seconds from now the sound starts (null if silent).
+// Only the SOUND can wait - score, text and sparkles always happen at once.
 function playSound(name, delay = 0) {
     // Silent if sound is off, or if the player hasn't interacted yet
     if (!isSoundOn || !audioContext || audioContext.state !== "running") {
-        return;
+        return null;
     }
 
     // Don't stack the same sound many times in a split second
     const now = audioContext.currentTime;
     if (lastPlayedAt[name] !== undefined && now - lastPlayedAt[name] < SOUND_MIN_GAP) {
-        return;
+        return null;
     }
     lastPlayedAt[name] = now;
+
+    // A jingle waits for any jingle that is still playing
+    if (JINGLE_LENGTHS[name] !== undefined) {
+        const earliestStart = jingleFreeAt > 0 ? jingleFreeAt + JINGLE_GAP : 0;
+        const start = Math.max(now + delay, earliestStart);
+        delay = start - now;
+        jingleFreeAt = start + JINGLE_LENGTHS[name];
+    }
 
     if (name === "catch") {
         // short happy "bloop" going up
@@ -114,6 +136,11 @@ function playSound(name, delay = 0) {
         [523, 659, 784, 1047].forEach(function (freq, i) {
             playTone(freq, freq, 0.12, "triangle", 0.18, delay + i * 0.09);
         });
+    } else if (name === "golden") {
+        // bright "ding-ding-DING" for a Golden Fruit (about 0.25 s)
+        [1319, 1760, 2637].forEach(function (freq, i) {
+            playTone(freq, freq, i === 2 ? 0.14 : 0.07, "triangle", 0.2, delay + i * 0.055);
+        });
     } else if (name === "bonus") {
         // quick sparkly run of high notes for "FRUIT RAIN!"
         [1047, 1319, 1568, 2093, 1568, 2093].forEach(function (freq, i) {
@@ -125,6 +152,8 @@ function playSound(name, delay = 0) {
             playTone(freq, freq * 0.98, 0.2, "triangle", 0.2, delay + i * 0.18);
         });
     }
+
+    return delay;
 }
 
 
