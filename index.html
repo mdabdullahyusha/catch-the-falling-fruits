@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catch the Fruits!</title>
+
+    <!-- Nunito font from Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+
+    <!-- Our stylesheet -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <!-- Centered wrapper for the whole game -->
+    <main class="game-container">
+
+        <!-- 1. GAME HEADER -->
+        <header class="game-header">
+            <h1 class="game-title">Catch the Fruits!</h1>
+            <p class="game-subtitle">Catch fruits, earn points!</p>
+        </header>
+
+        <!-- STATUS BAR: scoreboard on the left, lives on the right -->
+        <section class="status-bar">
+
+            <!-- 2. SCOREBOARD -->
+            <div class="scoreboard">
+                <div class="score-box">
+                    <span class="score-label">Score</span>
+                    <span id="current-score" class="score-value">0</span>
+                </div>
+                <div class="score-box score-box-best">
+                    <span class="score-label">Best</span>
+                    <span id="best-score" class="score-value">0</span>
+                </div>
+            </div>
+
+            <!-- 3. LIFE COUNTER (label + three hearts) -->
+            <div class="lives">
+                <span class="score-label">Lives</span>
+                <div class="hearts" role="img" aria-label="Lives: 3">
+                    <span class="heart" aria-hidden="true">&#10084;</span>
+                    <span class="heart" aria-hidden="true">&#10084;</span>
+                    <span class="heart" aria-hidden="true">&#10084;</span>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- LEVEL INDICATOR: level badge + progress bar toward the next level -->
+        <section class="level-panel">
+            <div class="level-badge">
+                <span class="level-badge-label">Level</span>
+                <span id="level-number" class="level-badge-number">1</span>
+            </div>
+
+            <div class="level-progress">
+                <div id="progress-bar" class="progress-track"
+                     role="progressbar" aria-label="Progress to next level"
+                     aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+                    <div id="progress-fill" class="progress-fill"></div>
+                </div>
+                <p class="progress-text">
+                    Progress: <strong><span id="progress-points">0</span> / 100</strong>
+                    <span class="progress-remaining">&middot; <span id="points-remaining">100</span> points remaining</span>
+                </p>
+            </div>
+        </section>
+
+        <!-- 4. GAME AREA: the canvas plus the panels on top of it -->
+        <section class="game-area">
+
+            <!-- width/height set the drawing size; CSS scales it on small screens -->
+            <canvas id="game-canvas" width="800" height="500"
+                    aria-label="Game area: move the basket with the arrow keys, A and D, or by dragging"></canvas>
+
+            <!-- LEVEL UP NOTIFICATION (shown for 1.5 seconds on each new level) -->
+            <div id="level-up" class="level-up" hidden aria-live="polite">
+                <p class="level-up-title">LEVEL UP!</p>
+                <p class="level-up-level">Level <span id="level-up-number">2</span></p>
+            </div>
+
+            <!-- 6. GAME OVER PANEL (hidden until the game ends) -->
+            <div id="game-over-panel" class="game-over-panel" hidden>
+                <div class="game-over-card" role="dialog" aria-labelledby="game-over-title">
+                    <h2 id="game-over-title" class="game-over-title">Game Over!</h2>
+                    <p class="final-score-label">Final Score</p>
+                    <p id="final-score" class="final-score-number">0</p>
+                    <p class="final-best">
+                        🏆 Best Score: <span id="final-best-score">0</span>
+                    </p>
+                    <p id="new-best" class="new-best" hidden>⭐ New Best Score! ⭐</p>
+                    <button id="play-again-btn" class="btn btn-primary">🔄 Play Again</button>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- 5. GAME CONTROLS -->
+        <section class="controls">
+            <button id="start-btn" class="btn btn-primary">▶ Start Game</button>
+            <button id="pause-btn" class="btn btn-secondary">⏸ Pause</button>
+            <button id="restart-btn" class="btn btn-accent">🔄 Restart</button>
+            <button id="sound-btn" class="btn btn-sound" aria-pressed="true">🔊 Sound: On</button>
+        </section>
+
+        <!-- Short help line for keyboard players -->
+        <p class="help-text">Keys: ← → or A / D to move &middot; P to pause</p>
+
+    </main>
+
+    <!-- JavaScript is loaded last so the HTML above already exists -->
+    <script src="js/basket.js"></script>
+    <script src="js/fruits.js"></script>
+    <script src="js/score.js"></script>
+    <script src="js/lives.js"></script>
+    <script src="js/level.js"></script>
+    <script src="js/sound.js"></script>
+    <script src="js/effects.js"></script>
+    <script src="js/collision.js"></script>
+    <script src="js/game.js"></script>
+</body>
+</html>

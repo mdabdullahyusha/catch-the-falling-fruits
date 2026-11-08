@@ -1,0 +1,648 @@
+/* =========================================================
+   1. COLOR VARIABLES
+   Change a color here and it updates everywhere.
+   ========================================================= */
+:root {
+    --bg-page: #eaf6ff;       /* light blue page background */
+    --bg-sky: #bde8ff;        /* light blue canvas background */
+    --text-dark: #243b53;     /* main text color */
+    --white: #ffffff;
+
+    /* Colors were chosen so text on them is easy to read
+       (WCAG contrast 4.5:1 or better) */
+    --green: #26803a;         /* primary buttons (white text) */
+    --green-dark: #1b5e2a;
+    --orange: #ff9f43;        /* accent (dark text on it) */
+    --orange-dark: #e67e22;
+    --orange-text: #c2410c;   /* orange for TEXT on light backgrounds */
+    --yellow: #ffd93d;        /* accent (dark text on it) */
+    --yellow-dark: #e6b800;
+    --red: #ff5c7a;           /* hearts */
+
+    --radius: 16px;
+    --shadow: 0 6px 20px rgba(36, 59, 83, 0.15);
+}
+
+/* =========================================================
+   2. RESET
+   Removes the browser's default spacing.
+   ========================================================= */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* =========================================================
+   3. PAGE
+   Light blue background and centered content.
+   ========================================================= */
+body {
+    font-family: "Nunito", Arial, sans-serif;
+    background-color: var(--bg-page);
+    color: var(--text-dark);
+    min-height: 100vh;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Wrapper that holds every part of the game */
+.game-container {
+    width: 100%;
+    max-width: 840px;   /* 800px canvas + padding */
+    padding: 20px;
+}
+
+/* =========================================================
+   4. GAME HEADER
+   ========================================================= */
+.game-header {
+    text-align: center;
+    margin-bottom: 16px;
+}
+
+.game-title {
+    font-size: 2.5rem;
+    font-weight: 900;
+    color: var(--orange-text);
+    /* white shadow makes the title look like a sticker */
+    text-shadow: 3px 3px 0 var(--white), 5px 5px 0 rgba(36, 59, 83, 0.1);
+}
+
+.game-subtitle {
+    font-size: 1.1rem;
+    font-weight: 700;
+    opacity: 0.8;
+}
+
+/* =========================================================
+   5. STATUS BAR (scoreboard + lives)
+   Flexbox puts them on one row, pushed to opposite sides.
+   ========================================================= */
+.status-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+/* --- Scoreboard --- */
+.scoreboard {
+    display: flex;
+    gap: 10px;
+}
+
+.score-box {
+    background-color: var(--white);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    border-bottom: 4px solid var(--yellow);
+    padding: 8px 18px;
+    min-width: 90px;
+    text-align: center;
+}
+
+.score-box-best {
+    border-bottom-color: var(--orange);
+}
+
+/* Label on top, number below */
+.score-label {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    opacity: 0.75;
+}
+
+.score-value {
+    display: block;
+    font-size: 1.6rem;
+    font-weight: 900;
+}
+
+/* --- Life counter: "LIVES" label on top, hearts below --- */
+.lives {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: var(--white);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    border-bottom: 4px solid var(--red);
+    padding: 8px 16px;
+}
+
+.hearts {
+    display: flex;
+    gap: 6px;
+    padding-top: 2px;
+}
+
+.heart {
+    font-size: 1.6rem;
+    line-height: 1;
+    color: var(--red);
+    transition: color 0.3s, opacity 0.3s, transform 0.3s;
+}
+
+/* A lost life: grey outline heart (JavaScript also swaps ❤ for ♡,
+   so it's not shown by color alone) */
+.heart.heart-lost {
+    color: #8a96a3;
+    transform: scale(0.85);
+}
+
+/* =========================================================
+   5b. LEVEL PANEL (level badge + progress bar)
+   ========================================================= */
+.level-panel {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background-color: var(--white);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 10px 16px;
+    margin-bottom: 12px;
+}
+
+/* Round yellow badge with the level number */
+.level-badge {
+    flex-shrink: 0;            /* never squash the badge */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 62px;
+    height: 62px;
+    border-radius: 50%;
+    background-color: var(--yellow);
+    box-shadow: 0 4px 0 var(--yellow-dark);
+}
+
+.level-badge-label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    line-height: 1;
+}
+
+.level-badge-number {
+    font-size: 1.6rem;
+    font-weight: 900;
+    line-height: 1.1;
+}
+
+/* Takes up all the remaining space in the row */
+.level-progress {
+    flex-grow: 1;
+    min-width: 0;
+}
+
+/* The empty "rail" of the progress bar */
+.progress-track {
+    height: 16px;
+    background-color: var(--bg-page);
+    border-radius: 999px;
+    overflow: hidden;
+    box-shadow: inset 0 2px 4px rgba(36, 59, 83, 0.12);
+}
+
+/* The colored part - JavaScript sets its width (0% to 100%) */
+.progress-fill {
+    width: 0%;
+    height: 100%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, var(--yellow), var(--orange));
+    transition: width 0.4s ease-out;   /* smooth growing animation */
+}
+
+.progress-text {
+    margin-top: 6px;
+    font-size: 0.9rem;
+    font-weight: 700;
+}
+
+.progress-remaining {
+    opacity: 0.8;
+}
+
+/* =========================================================
+   6. GAME AREA (canvas)
+   position: relative lets the Game Over panel sit on top.
+   ========================================================= */
+.game-area {
+    position: relative;
+    border: 4px solid var(--white);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;          /* keeps the panel inside the rounded corners */
+    user-select: none;         /* no accidental text selection while dragging */
+    -webkit-user-select: none;
+}
+
+#game-canvas {
+    display: block;            /* removes a small gap under the canvas */
+    width: 100%;               /* shrink to fit smaller screens... */
+    height: auto;              /* ...while keeping the 800:500 shape */
+    background-color: var(--bg-sky);
+    touch-action: none;        /* dragging on the canvas won't scroll the page */
+    -webkit-tap-highlight-color: transparent;
+    cursor: grab;
+}
+
+#game-canvas:active {
+    cursor: grabbing;
+}
+
+/* =========================================================
+   6b. LEVEL UP NOTIFICATION
+   Sits over the top part of the canvas. pointer-events: none
+   means clicks and drags pass straight through to the canvas.
+   ========================================================= */
+.level-up {
+    position: absolute;
+    top: 30%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    background-color: var(--white);
+    border-bottom: 5px solid var(--orange);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 12px 32px;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.level-up[hidden] {
+    display: none;
+}
+
+.level-up-title {
+    font-size: 2.2rem;
+    font-weight: 900;
+    color: var(--orange-text);
+    line-height: 1.1;
+}
+
+.level-up-level {
+    font-size: 1.2rem;
+    font-weight: 900;
+    color: var(--green);
+}
+
+/* Added by JavaScript to play the animation once (1.5 seconds) */
+.level-up-show {
+    animation: level-up-pop 1.5s ease-out forwards;
+}
+
+/* Pop in bigger, settle, stay, then fade away */
+@keyframes level-up-pop {
+    0%   { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+    15%  { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
+    25%  { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+    80%  { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+    100% { opacity: 0; transform: translate(-50%, -50%) scale(1); }
+}
+
+/* People who turn off animations in their system settings
+   get a simple fade instead of the pop */
+@media (prefers-reduced-motion: reduce) {
+    @keyframes level-up-pop {
+        0%   { opacity: 0; }
+        15%  { opacity: 1; }
+        80%  { opacity: 1; }
+        100% { opacity: 0; }
+    }
+
+    .progress-fill {
+        transition: none;
+    }
+}
+
+/* =========================================================
+   7. GAME OVER PANEL
+   Covers the canvas with a soft dark layer and a white card.
+   ========================================================= */
+.game-over-panel {
+    position: absolute;
+    inset: 0;                  /* stretch over the whole game area */
+    background-color: rgba(36, 59, 83, 0.45);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 16px;
+    animation: fade-in 0.25s ease-out;
+}
+
+/* The hidden attribute must win over display: flex above */
+.game-over-panel[hidden] {
+    display: none;
+}
+
+.game-over-card {
+    background-color: var(--white);
+    border-top: 6px solid var(--orange);
+    border-radius: var(--radius);
+    box-shadow: 0 12px 32px rgba(36, 59, 83, 0.3);
+    padding: 24px 40px;
+    text-align: center;
+    animation: card-pop 0.3s ease-out;
+}
+
+.game-over-title {
+    font-size: 2.2rem;
+    font-weight: 900;
+    color: var(--orange-text);
+    margin-bottom: 4px;
+}
+
+.final-score-label {
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    opacity: 0.75;
+}
+
+/* The final score is the biggest thing on the card */
+.final-score-number {
+    font-size: 3rem;
+    font-weight: 900;
+    line-height: 1.1;
+    margin-bottom: 6px;
+}
+
+.final-best {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 12px;
+}
+
+.new-best {
+    display: inline-block;
+    background-color: var(--yellow);
+    border-radius: 999px;
+    padding: 4px 14px;
+    font-weight: 900;
+    margin-bottom: 14px;
+}
+
+.new-best[hidden] {
+    display: none;
+}
+
+.game-over-card .btn {
+    display: block;
+    margin: 4px auto 0;
+}
+
+@keyframes fade-in {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+@keyframes card-pop {
+    from { opacity: 0; transform: scale(0.9); }
+    to   { opacity: 1; transform: scale(1); }
+}
+
+/* =========================================================
+   8. CONTROLS AND BUTTONS
+   .btn is the shared style; the other classes set the color.
+   ========================================================= */
+.controls {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;           /* buttons wrap to a new line if needed */
+    gap: 12px;
+    margin-top: 16px;
+}
+
+/* Each button color sets --btn-base (the darker "3D" edge below it).
+   The edge grows on hover and shrinks when pressed. */
+.btn {
+    --btn-base: rgba(36, 59, 83, 0.25);
+    font-family: inherit;
+    font-size: 1.05rem;
+    font-weight: 900;
+    color: var(--white);
+    border: none;
+    border-radius: 999px;      /* pill shape */
+    padding: 12px 28px;
+    min-height: 48px;          /* comfortable to tap with a finger */
+    cursor: pointer;
+    box-shadow: 0 4px 0 var(--btn-base);
+    transition: transform 0.12s, box-shadow 0.12s, filter 0.2s, opacity 0.2s;
+    touch-action: manipulation;          /* no double-tap zoom on buttons */
+    -webkit-tap-highlight-color: transparent;
+}
+
+.btn:hover {
+    filter: brightness(1.06);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 0 var(--btn-base);
+}
+
+/* Pressed-down effect */
+.btn:active {
+    transform: translateY(2px);
+    box-shadow: 0 2px 0 var(--btn-base);
+}
+
+/* Visible outline for keyboard users */
+.btn:focus-visible {
+    outline: 3px solid var(--text-dark);
+    outline-offset: 3px;
+}
+
+/* A button that can't be used right now (e.g. Start while playing) */
+.btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    filter: grayscale(0.4);
+    transform: none;
+    box-shadow: 0 4px 0 var(--btn-base);
+}
+
+.btn-primary {
+    background-color: var(--green);
+    --btn-base: var(--green-dark);
+}
+
+.btn-secondary {
+    background-color: var(--yellow);
+    color: var(--text-dark);
+    --btn-base: var(--yellow-dark);
+}
+
+.btn-accent {
+    background-color: var(--orange);
+    color: var(--text-dark);   /* dark text reads better on orange */
+    --btn-base: var(--orange-dark);
+}
+
+.btn-sound {
+    background-color: var(--white);
+    color: var(--text-dark);
+    --btn-base: #b9c6d3;
+}
+
+/* Keyboard help under the buttons */
+.help-text {
+    text-align: center;
+    margin-top: 14px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    opacity: 0.8;
+}
+
+/* Hide keyboard help on touch-only devices (phones, tablets) */
+@media (hover: none) and (pointer: coarse) {
+    .help-text {
+        display: none;
+    }
+}
+
+/* =========================================================
+   9. SMALL SCREENS (phones)
+   Slightly smaller text and spacing.
+   ========================================================= */
+@media (max-width: 600px) {
+    .game-container {
+        padding: 12px;
+    }
+
+    .game-title {
+        font-size: 1.9rem;
+    }
+
+    .game-subtitle {
+        font-size: 0.95rem;
+    }
+
+    .score-box {
+        min-width: 70px;
+        padding: 6px 12px;
+    }
+
+    .score-value {
+        font-size: 1.3rem;
+    }
+
+    .heart {
+        font-size: 1.3rem;
+    }
+
+    .level-panel {
+        gap: 10px;
+        padding: 8px 12px;
+    }
+
+    .level-badge {
+        width: 50px;
+        height: 50px;
+    }
+
+    .level-badge-number {
+        font-size: 1.3rem;
+    }
+
+    .progress-text {
+        font-size: 0.8rem;
+    }
+
+    .level-up {
+        padding: 8px 20px;
+    }
+
+    .level-up-title {
+        font-size: 1.6rem;
+    }
+
+    .level-up-level {
+        font-size: 1rem;
+    }
+
+    /* Buttons in a tidy 2 x 2 grid, each easy to tap */
+    .controls {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
+
+    .btn {
+        font-size: 0.95rem;
+        padding: 10px 12px;
+    }
+
+    /* On a phone the canvas is short, so the Game Over panel
+       covers the whole screen instead of just the canvas */
+    .game-over-panel {
+        position: fixed;
+        z-index: 10;
+    }
+
+    .game-over-card {
+        padding: 20px 24px;
+        width: 100%;
+        max-width: 340px;
+    }
+
+    .game-over-title {
+        font-size: 1.7rem;
+    }
+
+    .final-score-number {
+        font-size: 2.4rem;
+    }
+}
+
+/* Very narrow phones (e.g. 320px wide) */
+@media (max-width: 360px) {
+    .game-title {
+        font-size: 1.6rem;
+    }
+
+    .score-box {
+        min-width: 60px;
+        padding: 6px 8px;
+    }
+
+    .lives {
+        padding: 6px 10px;
+    }
+
+    .heart {
+        font-size: 1.15rem;
+    }
+
+    .btn {
+        font-size: 0.85rem;
+    }
+}
+
+/* =========================================================
+   10. REDUCED MOTION
+   Placed last so it wins over the animations above.
+   ========================================================= */
+@media (prefers-reduced-motion: reduce) {
+    .game-over-panel,
+    .game-over-card {
+        animation: none;
+    }
+
+    .btn,
+    .btn:hover,
+    .btn:active {
+        transition: none;
+        transform: none;
+    }
+}
