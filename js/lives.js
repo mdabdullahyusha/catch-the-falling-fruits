@@ -12,6 +12,10 @@ let missedFruits = 0;        // fruits missed since the last life lost to misses
 const livesElement = document.querySelector(".hearts");
 const heartElements = document.querySelectorAll(".heart");
 
+// The five green "miss" hearts underneath
+const missHeartsElement = document.querySelector(".miss-hearts");
+const missHeartElements = document.querySelectorAll(".miss-heart");
+
 
 // Changes lives by "change" (for example -1) and refreshes the hearts.
 // Lives can never go below 0 or above MAX_LIVES.
@@ -57,9 +61,45 @@ function registerMissedFruit() {
 
     if (missedFruits >= MISSES_PER_LIFE) {
         missedFruits = 0;
+        updateMissDisplay();
+        playMissRefill();          // the 5 green hearts pop back in
         return true;
     }
+
+    updateMissDisplay();
     return false;
+}
+
+
+// Green hearts: one full heart for every miss still allowed,
+// an outline heart for every fruit already missed.
+// 0 misses = 5 green, 2 misses = 3 green + 2 outlines.
+function updateMissDisplay() {
+    const missesLeft = MISSES_PER_LIFE - missedFruits;
+
+    missHeartElements.forEach(function (heart, index) {
+        // Shape changes too (filled -> outline), not just the color
+        if (index < missesLeft) {
+            heart.classList.remove("miss-heart-used");
+            heart.textContent = "❤";   // ❤ filled
+        } else {
+            heart.classList.add("miss-heart-used");
+            heart.textContent = "♡";   // ♡ outline
+        }
+    });
+
+    // For screen readers
+    missHeartsElement.setAttribute("aria-label",
+        "Fruits you can still miss before losing a life: " + missesLeft);
+}
+
+
+// Replays the little "pop" when the green hearts refill.
+// (Remove the class, make the browser notice, add it again.)
+function playMissRefill() {
+    missHeartsElement.classList.remove("miss-hearts-refill");
+    void missHeartsElement.offsetWidth;
+    missHeartsElement.classList.add("miss-hearts-refill");
 }
 
 
@@ -68,4 +108,6 @@ function resetLives() {
     lives = MAX_LIVES;
     missedFruits = 0;
     updateHeartDisplay();
+    updateMissDisplay();
+    missHeartsElement.classList.remove("miss-hearts-refill");
 }

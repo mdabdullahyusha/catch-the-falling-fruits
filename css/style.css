@@ -157,10 +157,44 @@ body {
     transform: scale(0.85);
 }
 
+/* --- Green "miss" hearts under the red ones --- */
+.miss-hearts {
+    display: flex;
+    gap: 3px;
+    padding-top: 4px;
+}
+
+.miss-heart {
+    font-size: 0.95rem;
+    line-height: 1;
+    color: var(--green);
+    transition: color 0.3s, transform 0.3s;
+}
+
+/* A used-up miss: grey outline (JavaScript also swaps ❤ for ♡).
+   The ♡ symbol is drawn thinner and smaller than ❤, so it is
+   scaled UP a little to look the same size as a full heart. */
+.miss-heart.miss-heart-used {
+    color: #6b7785;
+    transform: scale(1.2);
+}
+
+/* Played once when the 5 green hearts refill after a life is lost */
+.miss-hearts-refill .miss-heart {
+    animation: miss-refill 0.4s ease-out;
+}
+
+@keyframes miss-refill {
+    0%   { transform: scale(0.4); }
+    60%  { transform: scale(1.25); }
+    100% { transform: scale(1); }
+}
+
 /* =========================================================
    5b. LEVEL PANEL (level badge + progress bar)
    ========================================================= */
 .level-panel {
+    position: relative;        /* lets the FRUIT RAIN banner cover it */
     display: flex;
     align-items: center;
     gap: 14px;
@@ -169,6 +203,65 @@ body {
     box-shadow: var(--shadow);
     padding: 10px 16px;
     margin-bottom: 12px;
+}
+
+/* --- FRUIT RAIN banner: covers the level panel during the bonus --- */
+.bonus-banner {
+    position: absolute;
+    inset: 0;                  /* exactly the size of the level panel */
+    z-index: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5em;
+    padding: 0 12px;
+    background-color: #fff8db; /* soft yellow */
+    border: 4px solid var(--yellow);
+    border-radius: var(--radius);
+    /* Grows with the screen: never below 1.15rem (about 18px), never above 1.9rem */
+    font-size: clamp(1.15rem, 5vw, 1.9rem);
+    font-weight: 900;
+    white-space: nowrap;
+    animation: bonus-pop 0.35s ease-out;
+}
+
+.bonus-banner[hidden] {
+    display: none;
+}
+
+.bonus-banner-text {
+    color: var(--orange-text);
+    letter-spacing: 0.5px;
+}
+
+/* The countdown number in a small dark pill so it stands out */
+.bonus-banner-count {
+    min-width: 2.4em;
+    padding: 0.1em 0.5em;
+    border-radius: 999px;
+    background-color: var(--text-dark);
+    color: var(--white);
+    text-align: center;
+    font-variant-numeric: tabular-nums;   /* digits don't wiggle as they change */
+}
+
+@keyframes bonus-pop {
+    0%   { transform: scale(0.85); opacity: 0; }
+    70%  { transform: scale(1.03); opacity: 1; }
+    100% { transform: scale(1); }
+}
+
+/* Hidden on screen, but still read by screen readers */
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
 }
 
 /* Round yellow badge with the level number */
@@ -624,6 +717,14 @@ body {
         font-size: 1.15rem;
     }
 
+    .miss-heart {
+        font-size: 0.8rem;
+    }
+
+    .miss-hearts {
+        gap: 2px;
+    }
+
     .btn {
         font-size: 0.85rem;
     }
@@ -644,5 +745,13 @@ body {
     .btn:active {
         transition: none;
         transform: none;
+    }
+
+    .miss-hearts-refill .miss-heart {
+        animation: none;
+    }
+
+    .bonus-banner {
+        animation: none;
     }
 }

@@ -4,7 +4,8 @@
 // (basket.js = basket, fruits.js = fruits + bombs, lives.js = lives,
 //  collision.js = catching, score.js = score + best score + "+10" texts,
 //  level.js = levels, difficulty, progress bar, "LEVEL UP!",
-//  sound.js = sound effects, effects.js = pops, sparkles, wobble)
+//  sound.js = sound effects, effects.js = pops, sparkles, wobble,
+//  bonus.js = "FRUIT RAIN!" bonus mode)
 
 // ---------- Canvas setup ----------
 const canvas = document.getElementById("game-canvas");
@@ -60,6 +61,7 @@ function restartGame() {
     resetFallingObjects();          // removes all fruits + bombs, resets spawn timer
     floatingScores.length = 0;      // clear any "+10" texts
     resetEffects();                 // clear pops, sparkles, wobble
+    resetBonusMode();               // no bonus running, milestones can trigger again
     initBasket(canvas);
 
     bestScoreAtStart = bestScore;
@@ -145,6 +147,7 @@ function update(deltaTime) {
     }
 
     updateBasket(canvas, deltaTime);
+    updateBonusMode(deltaTime);     // before spawning, so the spawn uses the right mode
     updateFallingObjects(canvas, deltaTime);
     checkFruitCatches();
     updateFloatingScores(deltaTime);

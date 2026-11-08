@@ -39,13 +39,23 @@
                 </div>
             </div>
 
-            <!-- 3. LIFE COUNTER (label + three hearts) -->
+            <!-- 3. LIFE COUNTER (label + three red hearts + five green "miss" hearts) -->
             <div class="lives">
                 <span class="score-label">Lives</span>
                 <div class="hearts" role="img" aria-label="Lives: 3">
                     <span class="heart" aria-hidden="true">&#10084;</span>
                     <span class="heart" aria-hidden="true">&#10084;</span>
                     <span class="heart" aria-hidden="true">&#10084;</span>
+                </div>
+                <!-- One green heart empties for every missed fruit.
+                     When all 5 are empty, a red heart is lost and they refill. -->
+                <div class="miss-hearts" role="img" title="Missed fruits: 5 misses cost 1 life"
+                     aria-label="Fruits you can still miss before losing a life: 5">
+                    <span class="miss-heart" aria-hidden="true">&#10084;</span>
+                    <span class="miss-heart" aria-hidden="true">&#10084;</span>
+                    <span class="miss-heart" aria-hidden="true">&#10084;</span>
+                    <span class="miss-heart" aria-hidden="true">&#10084;</span>
+                    <span class="miss-heart" aria-hidden="true">&#10084;</span>
                 </div>
             </div>
 
@@ -69,7 +79,21 @@
                     <span class="progress-remaining">&middot; <span id="points-remaining">100</span> points remaining</span>
                 </p>
             </div>
+
+            <!-- FRUIT RAIN BANNER: covers this panel during the 5-second bonus,
+                 so it never hides falling fruit on the canvas.
+                 aria-hidden: screen readers get the status message below instead
+                 of hearing every countdown number. -->
+            <div id="bonus-banner" class="bonus-banner" hidden aria-hidden="true">
+                <span class="bonus-banner-icon">🍓</span>
+                <span class="bonus-banner-text">FRUIT RAIN!</span>
+                <span id="bonus-countdown" class="bonus-banner-count">5s</span>
+                <span class="bonus-banner-icon">🍓</span>
+            </div>
         </section>
+
+        <!-- Screen-reader announcements: only "bonus started" and "bonus finished" -->
+        <p id="bonus-status" class="visually-hidden" role="status" aria-live="polite"></p>
 
         <!-- 4. GAME AREA: the canvas plus the panels on top of it -->
         <section class="game-area">
@@ -119,6 +143,7 @@
     <script src="js/score.js"></script>
     <script src="js/lives.js"></script>
     <script src="js/level.js"></script>
+    <script src="js/bonus.js"></script>
     <script src="js/sound.js"></script>
     <script src="js/effects.js"></script>
     <script src="js/collision.js"></script>

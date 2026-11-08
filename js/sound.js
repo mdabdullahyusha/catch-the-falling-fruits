@@ -114,6 +114,11 @@ function playSound(name, delay = 0) {
         [523, 659, 784, 1047].forEach(function (freq, i) {
             playTone(freq, freq, 0.12, "triangle", 0.18, delay + i * 0.09);
         });
+    } else if (name === "bonus") {
+        // quick sparkly run of high notes for "FRUIT RAIN!"
+        [1047, 1319, 1568, 2093, 1568, 2093].forEach(function (freq, i) {
+            playTone(freq, freq, 0.08, "sine", 0.15, delay + i * 0.06);
+        });
     } else if (name === "gameOver") {
         // four falling notes
         [392, 330, 262, 196].forEach(function (freq, i) {

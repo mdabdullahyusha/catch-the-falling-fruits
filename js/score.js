@@ -23,8 +23,10 @@ function updateScore(points) {
         bestScoreElement.textContent = bestScore;
     }
 
-    // The score changed, so the level and progress bar may change too
+    // The score changed, so the level and progress bar may change too,
+    // and a 500-point milestone may start "FRUIT RAIN!" (bonus.js)
     updateLevel();
+    checkBonusMilestone();
 }
 
 // Back to 0 (used when restarting). The best score is NOT touched.

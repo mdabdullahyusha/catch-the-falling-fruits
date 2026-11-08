@@ -35,10 +35,22 @@ function randomBetween(min, max) {
 // The ONE place that decides whether the next object is a bomb.
 // Roll the dice: Math.random() gives 0 up to 1, so it is below
 // getBombChance(level) exactly that often - 10% at level 1, 13% at
-// level 2 ... up to 25%. (A future Bonus Mode, where bombs must not
-// spawn, only needs to add its check here.)
+// level 2 ... up to 25%. During "FRUIT RAIN!" bonus mode no bombs
+// spawn at all (see bonus.js).
 function shouldSpawnBomb() {
+    if (isBonusActive) {
+        return false;
+    }
     return Math.random() < getBombChance(level);
+}
+
+// Seconds until the next spawn: 0.3 during bonus mode,
+// otherwise the level's normal interval (1.4 s at level 1 ... 0.9 s)
+function getCurrentSpawnInterval() {
+    if (isBonusActive) {
+        return BONUS_SPAWN_INTERVAL;
+    }
+    return getSpawnInterval(level) / 1000;   // ms -> seconds
 }
 
 
@@ -75,7 +87,10 @@ function spawnObject(canvas) {
         x: randomBetween(halfSize, canvas.width - halfSize),
         y: -halfSize,   // start just above the top, so it slides in
         speed: speedPerFrame * FRAMES_PER_SECOND,   // pixels per second
-        size: OBJECT_SIZE
+        size: OBJECT_SIZE,
+        // Spawned during the bonus rain? Then missing it costs nothing.
+        // (Fruits from before the bonus keep the normal miss rule.)
+        fromBonus: isBonusActive
     });
 }
 
@@ -84,13 +99,16 @@ function spawnObject(canvas) {
 function updateFallingObjects(canvas, deltaTime) {
 
     // a) Spawn timer: count down, and when it reaches 0 spawn
-    //    an object and start the next wait for the current level
-    //    (1400 ms at level 1, getting shorter - see level.js)
+    //    an object and start the next wait (normal level interval,
+    //    or 0.3 s during bonus mode)
     timeUntilNextSpawn -= deltaTime;
 
     if (timeUntilNextSpawn <= 0) {
         spawnObject(canvas);
-        timeUntilNextSpawn = getSpawnInterval(level) / 1000;   // ms -> seconds
+        // "+=" keeps the little bit of time we went past 0, so the
+        // average gap is exactly the interval (with "=" every gap
+        // would round up to the next frame - about 5% slow at 0.3 s)
+        timeUntilNextSpawn += getCurrentSpawnInterval();
     }
 
     // b) Move every object down
@@ -100,8 +118,8 @@ function updateFallingObjects(canvas, deltaTime) {
 
     // c) Remove objects that are completely below the canvas.
     //    A missed FRUIT is counted (every 5th miss costs a life -
-    //    see handleMissedFruit() in collision.js). A missed bomb
-    //    has no penalty - it just disappears.
+    //    see handleMissedFruit() in collision.js), except fruits from
+    //    the bonus rain. A missed bomb has no penalty - it just disappears.
     //    We loop BACKWARDS so removing an item doesn't skip the next one.
     for (let i = fallingObjects.length - 1; i >= 0; i--) {
         const object = fallingObjects[i];
@@ -110,7 +128,7 @@ function updateFallingObjects(canvas, deltaTime) {
         if (topOfObject > canvas.height) {
             fallingObjects.splice(i, 1);   // delete 1 item at position i
 
-            if (object.kind === "fruit") {
+            if (object.kind === "fruit" && !object.fromBonus) {
                 handleMissedFruit();
             }
         }
