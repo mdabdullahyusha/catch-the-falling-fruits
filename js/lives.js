@@ -3,8 +3,10 @@
 // =========================================================
 
 const MAX_LIVES = 3;
+const MISSES_PER_LIFE = 5;   // every 5 missed fruits cost 1 life
 
 let lives = 3;
+let missedFruits = 0;        // fruits missed since the last life lost to misses
 
 // The three heart <span>s and their container in the status bar
 const livesElement = document.querySelector(".hearts");
@@ -46,8 +48,24 @@ function updateHeartDisplay() {
 }
 
 
-// Back to full lives (used when restarting)
+// Counts one missed fruit. Returns true when this was the 5th miss,
+// which means the player should lose a life - the counter then
+// starts again from 0. (Taking the life away is done by the caller,
+// with the same code a bomb uses - see loseLife() in collision.js.)
+function registerMissedFruit() {
+    missedFruits = missedFruits + 1;
+
+    if (missedFruits >= MISSES_PER_LIFE) {
+        missedFruits = 0;
+        return true;
+    }
+    return false;
+}
+
+
+// Back to full lives and no misses (used when restarting)
 function resetLives() {
     lives = MAX_LIVES;
+    missedFruits = 0;
     updateHeartDisplay();
 }

@@ -99,7 +99,9 @@ function updateFallingObjects(canvas, deltaTime) {
     }
 
     // c) Remove objects that are completely below the canvas.
-    //    Missing something has no penalty - it just disappears.
+    //    A missed FRUIT is counted (every 5th miss costs a life -
+    //    see handleMissedFruit() in collision.js). A missed bomb
+    //    has no penalty - it just disappears.
     //    We loop BACKWARDS so removing an item doesn't skip the next one.
     for (let i = fallingObjects.length - 1; i >= 0; i--) {
         const object = fallingObjects[i];
@@ -107,6 +109,10 @@ function updateFallingObjects(canvas, deltaTime) {
 
         if (topOfObject > canvas.height) {
             fallingObjects.splice(i, 1);   // delete 1 item at position i
+
+            if (object.kind === "fruit") {
+                handleMissedFruit();
+            }
         }
     }
 }

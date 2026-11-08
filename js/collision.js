@@ -1,5 +1,7 @@
 // =========================================================
-// collision.js - checking what the basket caught
+// collision.js - checking what the basket caught, and what
+// happens next: points for fruit, lost lives for bombs and
+// for every 5 missed fruits
 // =========================================================
 
 const POINTS_PER_FRUIT = 10;
@@ -48,18 +50,15 @@ function handleFruitCatch(index) {
 }
 
 
-// ---------- 3. Caught a bomb: -1 life ----------
-function handleBombCollision(index) {
-    // Remove the bomb first so it can only ever cost ONE life
-    const bomb = fallingObjects[index];
-    fallingObjects.splice(index, 1);
-
+// ---------- 3. Losing a life (shared by bombs and missed fruits) ----------
+// Takes one life, shows "message" above the basket, plays the bomb
+// sound, and ends the game when no lives are left.
+function loseLife(message) {
     updateLives(-1);
 
-    // Feedback that doesn't rely on color alone: a ring, a small
-    // basket wobble, the words "-1 life", and a sound
-    spawnBombEffect(bomb);
-    addFloatingScore("-1 life", basket.x + basket.width / 2, basket.y - 10, "#e0435f");
+    // Feedback that doesn't rely on color alone: words + a sound
+    // (plus the heart turning into an outline)
+    addFloatingScore(message, basket.x + basket.width / 2, basket.y - 10, "#e0435f");
     playSound("bomb");
 
     if (lives <= 0) {
@@ -68,7 +67,35 @@ function handleBombCollision(index) {
 }
 
 
-// ---------- 4. Check every object, once per frame ----------
+// ---------- 4. Caught a bomb: -1 life ----------
+function handleBombCollision(index) {
+    // Remove the bomb first so it can only ever cost ONE life
+    const bomb = fallingObjects[index];
+    fallingObjects.splice(index, 1);
+
+    // A ring and a small basket wobble, then the shared life loss
+    spawnBombEffect(bomb);
+    loseLife("-1 life");
+}
+
+
+// ---------- 5. Missed a fruit: every 5th miss costs a life ----------
+// Called by fruits.js when a FRUIT falls off the bottom of the canvas.
+// (Missed bombs are never reported - missing a bomb is good!)
+function handleMissedFruit() {
+    // Only count misses in a running game. This also stops extra
+    // misses from counting in the same frame the game just ended.
+    if (gameState !== "playing") {
+        return;
+    }
+
+    if (registerMissedFruit()) {
+        loseLife(MISSES_PER_LIFE + " missed: -1 life");
+    }
+}
+
+
+// ---------- 6. Check every object, once per frame ----------
 function checkFruitCatches() {
     // Loop backwards so removing an object doesn't skip the next one
     for (let i = fallingObjects.length - 1; i >= 0; i--) {
