@@ -104,14 +104,7 @@ function spawnObject(canvas) {
     // x is the CENTER of the object, so keep half an object away
     // from each edge - that way it stays fully inside the canvas
     const halfSize = OBJECT_SIZE / 2;
-
-    // Speed for the CURRENT level, with a little random variation so
-    // objects don't all fall exactly together - but never above MAX_SPEED.
-    // The speed is stored on the object, so it never changes after
-    // spawning, even if the level goes up while it is falling.
-    const levelSpeed = getFallSpeed(level);
-    const variation = randomBetween(1 - SPEED_VARIATION, 1 + SPEED_VARIATION);
-    const speedPerFrame = Math.min(levelSpeed * variation, MAX_SPEED);
+    const speed = getSpawnSpeed();
 
     fallingObjects.push({
         kind: kind,     // "fruit" or "bomb"
@@ -119,11 +112,42 @@ function spawnObject(canvas) {
         golden: golden, // true for a Golden Fruit (worth 50 points)
         x: randomBetween(halfSize, canvas.width - halfSize),
         y: -halfSize,   // start just above the top, so it slides in
-        speed: speedPerFrame * FRAMES_PER_SECOND,   // pixels per second
+        speed: speed,   // pixels per second
         size: OBJECT_SIZE,
         // Spawned during the bonus rain? Then missing it costs nothing.
         // (Fruits from before the bonus keep the normal miss rule.)
         fromBonus: isBonusActive
+    });
+}
+
+// Speed for the CURRENT level, with a little random variation so
+// objects don't all fall exactly together - but never above MAX_SPEED.
+// The speed is stored on the object, so it never changes after
+// spawning, even if the level goes up while it is falling.
+// Returns pixels per second.
+function getSpawnSpeed() {
+    const levelSpeed = getFallSpeed(level);
+    const variation = randomBetween(1 - SPEED_VARIATION, 1 + SPEED_VARIATION);
+    const speedPerFrame = Math.min(levelSpeed * variation, MAX_SPEED);
+    return speedPerFrame * FRAMES_PER_SECOND;
+}
+
+// A power-up (the Shield) - created by shield.js on its OWN timer,
+// so it never takes a fruit/bomb spawn and never changes their chances.
+// kind "powerup": not a fruit (missing it costs nothing) and not a bomb.
+function spawnPowerUp(canvas, type) {
+    const halfSize = OBJECT_SIZE / 2;
+    const speed = getSpawnSpeed();
+
+    fallingObjects.push({
+        kind: "powerup",
+        type: type,
+        golden: false,
+        x: randomBetween(halfSize, canvas.width - halfSize),
+        y: -halfSize,
+        speed: speed,
+        size: OBJECT_SIZE,
+        fromBonus: false
     });
 }
 
@@ -191,6 +215,8 @@ function getObjectSprite(type) {
     if (!spriteCache[type]) {
         if (type === GOLDEN_TYPE) {
             spriteCache[type] = createGoldenSprite();
+        } else if (type === SHIELD_TYPE) {
+            spriteCache[type] = createEmojiSprite("🛡️");   // own key "shield"
         } else {
             spriteCache[type] = createEmojiSprite(type);
         }
@@ -310,6 +336,9 @@ function drawFallingObjects(ctx) {
             ctx.globalAlpha = getGoldenGlowAlpha();
             ctx.drawImage(getGoldenGlowSprite(), object.x - GLOW_SIZE / 2, object.y - GLOW_SIZE / 2);
             ctx.restore();
+        } else if (object.kind === "powerup") {
+            // Shield Power-up: a steady blue glow behind it (see shield.js)
+            ctx.drawImage(getShieldGlowSprite(), object.x - SHIELD_GLOW_SIZE / 2, object.y - SHIELD_GLOW_SIZE / 2);
         }
         ctx.drawImage(getObjectSprite(object.type), object.x - half, object.y - half);
     }

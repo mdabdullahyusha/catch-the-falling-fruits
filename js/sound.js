@@ -18,7 +18,8 @@ const lastPlayedAt = {};      // when each sound last played (to avoid pile-ups)
 const JINGLE_LENGTHS = {
     levelUp: 0.39,
     bonus: 0.38,
-    golden: 0.25
+    golden: 0.25,
+    shieldUp: 0.3
 };
 const JINGLE_GAP = 0.03;      // tiny pause between two jingles
 let jingleFreeAt = 0;         // audio-clock time when the last jingle ends
@@ -141,6 +142,14 @@ function playSound(name, delay = 0) {
         [1319, 1760, 2637].forEach(function (freq, i) {
             playTone(freq, freq, i === 2 ? 0.14 : 0.07, "triangle", 0.2, delay + i * 0.055);
         });
+    } else if (name === "shieldUp") {
+        // soft rising "whoosh" plus a bright note: the shield switches on
+        playTone(392, 784, 0.18, "sine", 0.18, delay);
+        playTone(1175, 1175, 0.12, "triangle", 0.15, delay + 0.18);
+    } else if (name === "shieldBreak") {
+        // glassy "crack": two quick notes falling fast (instead of the bomb sound)
+        playTone(2093, 523, 0.16, "triangle", 0.22, delay);
+        playTone(1568, 392, 0.12, "sine", 0.15, delay + 0.04);
     } else if (name === "bonus") {
         // quick sparkly run of high notes for "FRUIT RAIN!"
         [1047, 1319, 1568, 2093, 1568, 2093].forEach(function (freq, i) {

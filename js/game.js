@@ -5,7 +5,7 @@
 //  collision.js = catching, score.js = score + best score + "+10" texts,
 //  level.js = levels, difficulty, progress bar, "LEVEL UP!",
 //  sound.js = sound effects, effects.js = pops, sparkles, wobble,
-//  bonus.js = "FRUIT RAIN!" bonus mode)
+//  bonus.js = "FRUIT RAIN!" bonus mode, shield.js = Shield Power-up)
 
 // ---------- Canvas setup ----------
 const canvas = document.getElementById("game-canvas");
@@ -62,6 +62,7 @@ function restartGame() {
     floatingScores.length = 0;      // clear any "+10" texts
     resetEffects();                 // clear pops, sparkles, wobble
     resetBonusMode();               // no bonus running, milestones can trigger again
+    resetShield();                  // no shield, first Shield after 20 s again
     initBasket(canvas);
 
     bestScoreAtStart = bestScore;
@@ -148,6 +149,7 @@ function update(deltaTime) {
 
     updateBasket(canvas, deltaTime);
     updateBonusMode(deltaTime);     // before spawning, so the spawn uses the right mode
+    updateShield(canvas, deltaTime);   // the Shield Power-up's own spawn timer
     updateFallingObjects(canvas, deltaTime);
     checkFruitCatches();
     updateFloatingScores(deltaTime);
@@ -186,6 +188,10 @@ function draw() {
     ctx.translate(wobble, 0);
     drawBasket(ctx);
     ctx.restore();
+
+    // Blue bubble over the basket (only while active). Drawn outside the
+    // wobble shift so it always stays fully inside the canvas.
+    drawShieldBubble(ctx);
 
     // Effects and "+10" texts on top of everything
     drawEffects(ctx);

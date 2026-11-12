@@ -62,6 +62,34 @@ function spawnBombEffect(object) {
     }
 }
 
+// Shield caught: the 🛡️ pops and a blue ring spreads out
+function spawnShieldPickupEffect(object) {
+    pops.push({ type: object.type, x: object.x, y: object.y, age: 0 });
+    rings.push({ x: object.x, y: object.y, color: "#3b82f6", age: 0 });
+}
+
+// Shield broken by a bomb: a blue ring plus blue and white "shards"
+// flying out from the basket. No wobble - the basket wasn't hurt.
+const SHIELD_SHARD_COUNT = 10;
+const SHIELD_SHARD_COLORS = ["#60a5fa", "#2563eb", "#ffffff", "#93c5fd"];
+
+function spawnShieldBreakEffect(x, y) {
+    rings.push({ x: x, y: y, color: "#2563eb", age: 0 });
+
+    for (let i = 0; i < SHIELD_SHARD_COUNT; i++) {
+        const angle = (i / SHIELD_SHARD_COUNT) * Math.PI * 2;
+        const speed = 160 + Math.random() * 60;
+        sparkles.push({
+            x: x,
+            y: y,
+            speedX: Math.cos(angle) * speed,
+            speedY: Math.sin(angle) * speed,
+            color: SHIELD_SHARD_COLORS[i % SHIELD_SHARD_COLORS.length],
+            age: 0
+        });
+    }
+}
+
 
 // ---------- 2. Update ----------
 // Ages every effect and removes the finished ones.

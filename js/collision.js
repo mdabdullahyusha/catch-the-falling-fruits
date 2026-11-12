@@ -83,9 +83,26 @@ function handleBombCollision(index) {
     const bomb = fallingObjects[index];
     fallingObjects.splice(index, 1);
 
+    // An active Shield absorbs this ONE bomb: no life lost, the
+    // shield breaks instead (see shield.js). A second bomb in the
+    // same frame finds no shield and is handled normally below.
+    if (isShieldActive) {
+        breakShield();
+        return;
+    }
+
     // A ring and a small basket wobble, then the shared life loss
     spawnBombEffect(bomb);
     loseLife("-1 life");
+}
+
+
+// ---------- 4b. Caught a power-up (the Shield) ----------
+// No points - it switches the shield on (see shield.js)
+function handlePowerUpCatch(index) {
+    const powerUp = fallingObjects[index];
+    fallingObjects.splice(index, 1);
+    collectShield(powerUp);
 }
 
 
@@ -121,6 +138,8 @@ function checkFruitCatches() {
         if (checkCollision(object, basket)) {
             if (object.kind === "bomb") {
                 handleBombCollision(i);
+            } else if (object.kind === "powerup") {
+                handlePowerUpCatch(i);
             } else {
                 handleFruitCatch(i);
             }
