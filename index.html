@@ -41,8 +41,11 @@
 
             <!-- 3. LIFE COUNTER (label + three red hearts + five green "miss" hearts) -->
             <div class="lives">
-                <!-- Shield badge: shown in the corner while a shield protects the basket -->
-                <span id="shield-badge" class="shield-badge" role="img" aria-label="Shield active" title="Shield active: the next bomb won't cost a life" hidden>🛡️</span>
+                <!-- Shield badge: top-right corner, a ring that empties over 30 s + seconds left -->
+                <span id="shield-badge" class="shield-badge" role="img" aria-label="Shield active, 30 seconds left" title="Shield active: the next bomb won't cost a life" hidden>
+                    <span class="shield-badge-icon" aria-hidden="true">🛡️</span>
+                    <span id="shield-seconds" class="shield-badge-seconds" aria-hidden="true">30</span>
+                </span>
                 <!-- Magnet badge: top-left corner, a ring that empties over 5 s + seconds left -->
                 <span id="magnet-badge" class="magnet-badge" role="img" aria-label="Magnet active, 5 seconds left" title="Magnet: pulling nearby fruit to your basket" hidden>
                     <span class="magnet-badge-icon" aria-hidden="true">🧲</span>

@@ -158,24 +158,40 @@ body {
     transform: scale(0.85);
 }
 
-/* --- Shield badge: a blue circle with 🛡️ on the Lives box corner.
-       It sits ON the corner, so showing it never moves anything. --- */
+/* --- Shield badge: 🛡️ on the top-RIGHT corner of the Lives box.
+       It sits ON the corner, so showing it never moves anything.
+       The outer circle is a blue ring that empties over the 30 seconds:
+       JavaScript sets --shield-progress from 1 (full) down to 0. --- */
 .shield-badge {
+    --shield-progress: 1;
     position: absolute;
     top: -12px;
     right: -10px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
     width: 34px;
     height: 34px;
     border-radius: 50%;
-    background-color: #dbeafe;
-    border: 3px solid #2563eb;
+    background: conic-gradient(#2563eb calc(var(--shield-progress) * 360deg), #dbeafe 0);
     box-shadow: var(--shadow);
-    font-size: 1.05rem;
-    line-height: 1;
     animation: badge-pop 0.35s ease-out;
+}
+
+/* Light-blue inner circle with the 🛡️, so the ring shows around it */
+.shield-badge-icon {
+    position: absolute;
+    inset: 4px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    background-color: #eff6ff;
+    font-size: 0.95rem;
+    line-height: 1;
+}
+
+/* Last 5 seconds: the seconds tab turns orange-red (the number keeps
+   counting down too, so it isn't shown by color alone) */
+.shield-badge-warning .shield-badge-seconds {
+    background-color: var(--orange-text);
 }
 
 .shield-badge[hidden] {
@@ -215,8 +231,9 @@ body {
     line-height: 1;
 }
 
-/* Seconds left, in a small dark tab under the badge */
-.magnet-badge-seconds {
+/* Seconds left, in a small dark tab under the badge (Magnet and Shield) */
+.magnet-badge-seconds,
+.shield-badge-seconds {
     position: absolute;
     left: 50%;
     bottom: -9px;

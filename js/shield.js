@@ -3,6 +3,7 @@
 // A 🛡️ falls now and then. Catch it and a blue bubble protects
 // the basket: the next bomb you catch costs NO life - the
 // shield breaks instead. One shield at a time, no stacking.
+// If no bomb comes, the shield wears off after 30 seconds.
 // =========================================================
 
 // ---------- 1. Settings ----------
@@ -11,29 +12,47 @@ const SHIELD_FIRST_DELAY = 20;         // seconds of game time before the first 
 const SHIELD_MIN_INTERVAL = 25;        // then a new one every 25-35 seconds
 const SHIELD_MAX_INTERVAL = 35;
 const SHIELD_RETRY_DELAY = 3;          // try again soon if one couldn't spawn yet
+const SHIELD_DURATION = 30;            // seconds of GAME time before an unused shield wears off
+const SHIELD_WARNING_TIME = 5;         // last 5 s: the seconds tab turns orange-red
 const SHIELD_GLOW_SIZE = 100;
 const SHIELD_TEXT_COLOR = "#1d4ed8";   // blue for "Shield on!" / "Shield saved you!"
 
 // Messages for screen readers (read once each)
 const SHIELD_ON_MESSAGE = "Shield on! The next bomb you catch won't cost a life.";
 const SHIELD_BROKE_MESSAGE = "Shield broke! It saved you from a bomb.";
+const SHIELD_OFF_MESSAGE = "Shield wore off.";
 
 
 // ---------- 2. State ----------
 let isShieldActive = false;
+let shieldTimeLeft = 0;                // seconds left while active
 let timeUntilNextShield = SHIELD_FIRST_DELAY;
 let shieldShimmerTime = 0;             // game time, for the bubble's gentle shimmer
+let shownShieldSeconds = 0;            // the number currently in the badge tab
+let shownShieldProgress = -1;          // the ring value currently shown (0-100)
 
 // Page elements
 const shieldBadgeElement = document.getElementById("shield-badge");
+const shieldSecondsElement = document.getElementById("shield-seconds");
 const shieldStatusElement = document.getElementById("shield-status");
 
 
 // ---------- 3. Spawning (its OWN timer - separate from fruits and bombs) ----------
 // Called once per frame from update() in game.js, only while playing,
-// so pause and Game Over freeze this timer too.
+// so pause, a hidden tab and Game Over freeze these timers too.
 function updateShield(canvas, deltaTime) {
     shieldShimmerTime += deltaTime;
+
+    // An active shield counts down its 30 seconds (game time)
+    if (isShieldActive) {
+        shieldTimeLeft -= deltaTime;
+        if (shieldTimeLeft <= 0) {
+            expireShield();
+        } else {
+            updateShieldBadge();
+        }
+    }
+
     timeUntilNextShield -= deltaTime;
 
     if (timeUntilNextShield <= 0) {
@@ -65,13 +84,16 @@ function collectShield(powerUp) {
     const textX = basket.x + basket.width / 2;
     const textY = basket.y - 10;
 
-    // Already protected? Shields don't stack - no points, just a note
+    // Already protected? Shields don't stack and the 30 seconds are NOT
+    // refreshed - no points, no sound, no announcement, just a note
     if (isShieldActive) {
         addFloatingScore("Shield already on", textX, textY, SHIELD_TEXT_COLOR);
         return;
     }
 
     isShieldActive = true;
+    shieldTimeLeft = SHIELD_DURATION;      // the countdown starts now
+    updateShieldBadge();
     shieldBadgeElement.hidden = false;
     shieldStatusElement.textContent = SHIELD_ON_MESSAGE;
 
@@ -87,7 +109,8 @@ function collectShield(powerUp) {
 // frame finds no shield and costs a life as normal.
 function breakShield() {
     isShieldActive = false;
-    shieldBadgeElement.hidden = true;
+    shieldTimeLeft = 0;
+    hideShieldBadge();
     shieldStatusElement.textContent = SHIELD_BROKE_MESSAGE;
 
     const centerX = basket.x + basket.width / 2;
@@ -98,13 +121,65 @@ function breakShield() {
 }
 
 
+// ---------- 5b. No bomb came: the shield wears off after 30 s ----------
+// Quieter than a break: a soft ring (no shards), "Shield wore off",
+// a gentle sound and one announcement. Lives and score don't change.
+function expireShield() {
+    isShieldActive = false;
+    shieldTimeLeft = 0;
+    hideShieldBadge();
+    shieldStatusElement.textContent = SHIELD_OFF_MESSAGE;
+
+    const centerX = basket.x + basket.width / 2;
+    const centerY = basket.y + basket.height / 2;
+    spawnShieldExpireEffect(centerX, centerY);
+    addFloatingScore("Shield wore off", centerX, basket.y - 10, SHIELD_TEXT_COLOR);
+    playSound("shieldOff");
+}
+
+
 // ---------- 6. Reset (used when restarting) ----------
 function resetShield() {
     isShieldActive = false;
+    shieldTimeLeft = 0;
     timeUntilNextShield = SHIELD_FIRST_DELAY;
     shieldShimmerTime = 0;
-    shieldBadgeElement.hidden = true;
+    hideShieldBadge();
     shieldStatusElement.textContent = "";   // cleared quietly - nothing to announce
+}
+
+
+// ---------- 6b. The badge (top-right corner of the Lives box) ----------
+// A ring that empties over 30 s, and the seconds left in a little tab
+// that turns orange-red for the last 5 s. The page is only touched
+// when something visible changes.
+function updateShieldBadge() {
+    const seconds = Math.max(1, Math.ceil(shieldTimeLeft));
+    if (seconds !== shownShieldSeconds) {
+        shownShieldSeconds = seconds;
+        shieldSecondsElement.textContent = seconds;
+        shieldBadgeElement.setAttribute("aria-label", "Shield active, " + seconds + " seconds left");
+        shieldBadgeElement.classList.toggle("shield-badge-warning", shieldTimeLeft <= SHIELD_WARNING_TIME);
+    }
+
+    // Ring: smooth (100 steps), or whole seconds only with reduced motion
+    let progress;
+    if (reduceMotion) {
+        progress = Math.round((seconds / SHIELD_DURATION) * 100);
+    } else {
+        progress = Math.round((shieldTimeLeft / SHIELD_DURATION) * 100);
+    }
+    if (progress !== shownShieldProgress) {
+        shownShieldProgress = progress;
+        shieldBadgeElement.style.setProperty("--shield-progress", progress / 100);
+    }
+}
+
+function hideShieldBadge() {
+    shieldBadgeElement.hidden = true;
+    shieldBadgeElement.classList.remove("shield-badge-warning");
+    shownShieldSeconds = 0;
+    shownShieldProgress = -1;
 }
 
 

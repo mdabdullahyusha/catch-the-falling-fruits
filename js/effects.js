@@ -68,6 +68,11 @@ function spawnShieldPickupEffect(object) {
     rings.push({ x: object.x, y: object.y, color: "#3b82f6", age: 0 });
 }
 
+// Shield wore off (30 s, no bomb): one soft light-blue ring, no shards
+function spawnShieldExpireEffect(x, y) {
+    rings.push({ x: x, y: y, color: "#93c5fd", age: 0 });
+}
+
 // Magnet caught: the 🧲 pops and a magenta ring spreads out
 function spawnMagnetPickupEffect(object) {
     pops.push({ type: object.type, x: object.x, y: object.y, age: 0 });
