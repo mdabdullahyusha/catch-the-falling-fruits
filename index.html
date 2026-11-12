@@ -43,6 +43,11 @@
             <div class="lives">
                 <!-- Shield badge: shown in the corner while a shield protects the basket -->
                 <span id="shield-badge" class="shield-badge" role="img" aria-label="Shield active" title="Shield active: the next bomb won't cost a life" hidden>🛡️</span>
+                <!-- Magnet badge: top-left corner, a ring that empties over 5 s + seconds left -->
+                <span id="magnet-badge" class="magnet-badge" role="img" aria-label="Magnet active, 5 seconds left" title="Magnet: pulling nearby fruit to your basket" hidden>
+                    <span class="magnet-badge-icon" aria-hidden="true">🧲</span>
+                    <span id="magnet-seconds" class="magnet-badge-seconds" aria-hidden="true">5</span>
+                </span>
                 <span class="score-label">Lives</span>
                 <div class="hearts" role="img" aria-label="Lives: 3">
                     <span class="heart" aria-hidden="true">&#10084;</span>
@@ -100,6 +105,9 @@
         <!-- Screen-reader announcements: only "shield on" and "shield broke" -->
         <p id="shield-status" class="visually-hidden" role="status" aria-live="polite"></p>
 
+        <!-- Screen-reader announcements: only "magnet on" and "magnet off" -->
+        <p id="magnet-status" class="visually-hidden" role="status" aria-live="polite"></p>
+
         <!-- 4. GAME AREA: the canvas plus the panels on top of it -->
         <section class="game-area">
 
@@ -150,6 +158,7 @@
     <script src="js/level.js"></script>
     <script src="js/bonus.js"></script>
     <script src="js/shield.js"></script>
+    <script src="js/magnet.js"></script>
     <script src="js/sound.js"></script>
     <script src="js/effects.js"></script>
     <script src="js/collision.js"></script>

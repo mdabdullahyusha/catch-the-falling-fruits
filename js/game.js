@@ -5,7 +5,8 @@
 //  collision.js = catching, score.js = score + best score + "+10" texts,
 //  level.js = levels, difficulty, progress bar, "LEVEL UP!",
 //  sound.js = sound effects, effects.js = pops, sparkles, wobble,
-//  bonus.js = "FRUIT RAIN!" bonus mode, shield.js = Shield Power-up)
+//  bonus.js = "FRUIT RAIN!" bonus mode, shield.js = Shield Power-up,
+//  magnet.js = Fruit Magnet power-up)
 
 // ---------- Canvas setup ----------
 const canvas = document.getElementById("game-canvas");
@@ -63,6 +64,7 @@ function restartGame() {
     resetEffects();                 // clear pops, sparkles, wobble
     resetBonusMode();               // no bonus running, milestones can trigger again
     resetShield();                  // no shield, first Shield after 20 s again
+    resetMagnet();                  // no magnet, first Magnet after 35 s again
     initBasket(canvas);
 
     bestScoreAtStart = bestScore;
@@ -150,7 +152,9 @@ function update(deltaTime) {
     updateBasket(canvas, deltaTime);
     updateBonusMode(deltaTime);     // before spawning, so the spawn uses the right mode
     updateShield(canvas, deltaTime);   // the Shield Power-up's own spawn timer
+    updateMagnet(canvas, deltaTime);   // the Magnet's own spawn timer + 5 s countdown
     updateFallingObjects(canvas, deltaTime);
+    applyMagnetPull(canvas, deltaTime);   // sideways pull only, before catches are checked
     checkFruitCatches();
     updateFloatingScores(deltaTime);
     updateEffects(deltaTime);
@@ -179,7 +183,9 @@ function draw() {
     // Wipe the previous frame (the light blue comes from CSS)
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Fruits and bombs first, then the basket on top
+    // Magnet pull lines behind everything, then fruits and bombs,
+    // then the basket on top
+    drawMagnetLines(ctx);
     drawFallingObjects(ctx);
 
     // The basket wobbles a little after catching a bomb

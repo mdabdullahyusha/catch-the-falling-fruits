@@ -48,12 +48,13 @@ function updateShield(canvas, deltaTime) {
 
 // No new Shield while one is already protecting you,
 // or while a Shield Power-up is already falling
+// (a falling MAGNET does not block it - the two are independent)
 function canSpawnShield() {
     if (isShieldActive) {
         return false;
     }
     return !fallingObjects.some(function (object) {
-        return object.kind === "powerup";
+        return object.kind === "powerup" && object.type === SHIELD_TYPE;
     });
 }
 

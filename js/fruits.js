@@ -132,7 +132,7 @@ function getSpawnSpeed() {
     return speedPerFrame * FRAMES_PER_SECOND;
 }
 
-// A power-up (the Shield) - created by shield.js on its OWN timer,
+// A power-up (Shield or Magnet) - created by shield.js / magnet.js on their OWN timers,
 // so it never takes a fruit/bomb spawn and never changes their chances.
 // kind "powerup": not a fruit (missing it costs nothing) and not a bomb.
 function spawnPowerUp(canvas, type) {
@@ -217,6 +217,8 @@ function getObjectSprite(type) {
             spriteCache[type] = createGoldenSprite();
         } else if (type === SHIELD_TYPE) {
             spriteCache[type] = createEmojiSprite("🛡️");   // own key "shield"
+        } else if (type === MAGNET_TYPE) {
+            spriteCache[type] = createEmojiSprite("🧲");   // own key "magnet"
         } else {
             spriteCache[type] = createEmojiSprite(type);
         }
@@ -336,9 +338,12 @@ function drawFallingObjects(ctx) {
             ctx.globalAlpha = getGoldenGlowAlpha();
             ctx.drawImage(getGoldenGlowSprite(), object.x - GLOW_SIZE / 2, object.y - GLOW_SIZE / 2);
             ctx.restore();
-        } else if (object.kind === "powerup") {
+        } else if (object.type === SHIELD_TYPE) {
             // Shield Power-up: a steady blue glow behind it (see shield.js)
             ctx.drawImage(getShieldGlowSprite(), object.x - SHIELD_GLOW_SIZE / 2, object.y - SHIELD_GLOW_SIZE / 2);
+        } else if (object.type === MAGNET_TYPE) {
+            // Magnet Power-up: a steady magenta glow behind it (see magnet.js)
+            ctx.drawImage(getMagnetGlowSprite(), object.x - MAGNET_GLOW_SIZE / 2, object.y - MAGNET_GLOW_SIZE / 2);
         }
         ctx.drawImage(getObjectSprite(object.type), object.x - half, object.y - half);
     }

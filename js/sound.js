@@ -19,7 +19,9 @@ const JINGLE_LENGTHS = {
     levelUp: 0.39,
     bonus: 0.38,
     golden: 0.25,
-    shieldUp: 0.3
+    shieldUp: 0.3,
+    magnetOn: 0.27,
+    magnetOff: 0.2
 };
 const JINGLE_GAP = 0.03;      // tiny pause between two jingles
 let jingleFreeAt = 0;         // audio-clock time when the last jingle ends
@@ -146,6 +148,13 @@ function playSound(name, delay = 0) {
         // soft rising "whoosh" plus a bright note: the shield switches on
         playTone(392, 784, 0.18, "sine", 0.18, delay);
         playTone(1175, 1175, 0.12, "triangle", 0.15, delay + 0.18);
+    } else if (name === "magnetOn") {
+        // two quick rising "wub-WUB" sweeps: the magnet switches on
+        playTone(220, 440, 0.12, "sine", 0.2, delay);
+        playTone(330, 660, 0.13, "sine", 0.2, delay + 0.14);
+    } else if (name === "magnetOff") {
+        // one soft falling note: the magnet has run out
+        playTone(660, 220, 0.2, "triangle", 0.16, delay);
     } else if (name === "shieldBreak") {
         // glassy "crack": two quick notes falling fast (instead of the bomb sound)
         playTone(2093, 523, 0.16, "triangle", 0.22, delay);

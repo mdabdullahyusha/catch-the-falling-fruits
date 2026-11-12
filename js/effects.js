@@ -68,6 +68,17 @@ function spawnShieldPickupEffect(object) {
     rings.push({ x: object.x, y: object.y, color: "#3b82f6", age: 0 });
 }
 
+// Magnet caught: the 🧲 pops and a magenta ring spreads out
+function spawnMagnetPickupEffect(object) {
+    pops.push({ type: object.type, x: object.x, y: object.y, age: 0 });
+    rings.push({ x: object.x, y: object.y, color: "#c026d3", age: 0 });
+}
+
+// Magnet ran out: one soft magenta ring around the basket
+function spawnMagnetEndEffect(x, y) {
+    rings.push({ x: x, y: y, color: "#e879f9", age: 0 });
+}
+
 // Shield broken by a bomb: a blue ring plus blue and white "shards"
 // flying out from the basket. No wobble - the basket wasn't hurt.
 const SHIELD_SHARD_COUNT = 10;

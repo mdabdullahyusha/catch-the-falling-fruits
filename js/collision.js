@@ -97,12 +97,17 @@ function handleBombCollision(index) {
 }
 
 
-// ---------- 4b. Caught a power-up (the Shield) ----------
-// No points - it switches the shield on (see shield.js)
+// ---------- 4b. Caught a power-up (Shield or Magnet) ----------
+// No points - each type switches on its own power (see shield.js / magnet.js)
 function handlePowerUpCatch(index) {
     const powerUp = fallingObjects[index];
     fallingObjects.splice(index, 1);
-    collectShield(powerUp);
+
+    if (powerUp.type === SHIELD_TYPE) {
+        collectShield(powerUp);
+    } else if (powerUp.type === MAGNET_TYPE) {
+        collectMagnet(powerUp);
+    }
 }
 
 

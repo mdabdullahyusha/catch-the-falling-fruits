@@ -182,6 +182,57 @@ body {
     display: none;
 }
 
+/* --- Magnet badge: top-LEFT corner of the Lives box.
+       The outer circle is a ring that empties as the 5 seconds run out:
+       JavaScript sets --magnet-progress from 1 (full) down to 0. --- */
+.magnet-badge {
+    --magnet-progress: 1;
+    position: absolute;
+    top: -12px;
+    left: -10px;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: conic-gradient(#c026d3 calc(var(--magnet-progress) * 360deg), #f5d0fe 0);
+    box-shadow: var(--shadow);
+    animation: badge-pop 0.35s ease-out;
+}
+
+.magnet-badge[hidden] {
+    display: none;
+}
+
+/* White inner circle with the 🧲, so the ring shows around it */
+.magnet-badge-icon {
+    position: absolute;
+    inset: 4px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    background-color: #fdf4ff;
+    font-size: 0.95rem;
+    line-height: 1;
+}
+
+/* Seconds left, in a small dark tab under the badge */
+.magnet-badge-seconds {
+    position: absolute;
+    left: 50%;
+    bottom: -9px;
+    transform: translateX(-50%);
+    min-width: 18px;
+    padding: 1px 5px;
+    border-radius: 999px;
+    background-color: var(--text-dark);
+    color: var(--white);
+    font-size: 0.7rem;
+    font-weight: 900;
+    line-height: 1.3;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+}
+
 @keyframes badge-pop {
     0%   { transform: scale(0.3); }
     70%  { transform: scale(1.15); }
@@ -786,7 +837,8 @@ body {
         animation: none;
     }
 
-    .shield-badge {
+    .shield-badge,
+    .magnet-badge {
         animation: none;
     }
 }
